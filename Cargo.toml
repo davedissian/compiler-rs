@@ -1,0 +1,5 @@
+[package]
+
+name = "simplec"
+version = "0.0.1"
+authors = ["David Avedissian <davedissian@users.noreply.github.com>"]
