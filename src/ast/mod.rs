@@ -14,7 +14,8 @@ pub enum Statement {
 
 #[deriving(Show, Clone)]
 pub enum Expression {
-  Int(i32)
+  Int(i32),
+  Bool(bool)
 }
 
 #[deriving(Show, Clone)]

@@ -7,7 +7,7 @@ mod ast;
 fn main() {
   let mut program = ast::Program(
     Stmt::Block(vec!(
-      Stmt::Declare(Type::Bool, "x".to_string(), Expr::Int(5)),
+      Stmt::Declare(Type::Unknown, "x".to_string(), Expr::Bool(true)),
       Stmt::Print("x".to_string()),
       Stmt::Assign("x".to_string(), Expr::Int(6)),
       Stmt::Print("x".to_string())))
