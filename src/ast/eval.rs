@@ -3,7 +3,7 @@ use ast::{Program, Statement, Expression, Type};
 
 pub fn eval_program(p: &Program) {
   let Program(ref top) = *p;
-  let ctx = Context::new();
+  let mut ctx = Context::new();
   ctx.eval(top);
 }
 
