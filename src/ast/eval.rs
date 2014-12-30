@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use ast::{Program, Statement, Expression, Type};
+use ast::*;
 
 pub fn eval_program(p: &Program) {
   let Program(ref top) = *p;
@@ -32,7 +32,7 @@ impl Context {
       Statement::Block(ref c) => for s in c.iter() { self.eval(s); },
       Statement::Declare(ref t, ref ident, ref expr) => self.declare(t, ident, expr),
       Statement::Assign(ref ident, ref expr) => self.assign(ident, expr),
-      Statement::Print(ref s) => println!("{} = {}", s, self.get(s))
+      Statement::Print(ref expr) => self.print(expr)
     }
   }
 
@@ -46,8 +46,29 @@ impl Context {
     self.symbol_value.insert(ident.clone(), evaluated_expr);
   }
 
+  fn print(&self, expr: &Expression) {
+    match *expr {
+      Expression::Int(i) => println!("{}", i),
+      Expression::Char(c) => println!("{}", c),
+      Expression::Bool(b) => println!("{}", b),
+      _ => self.print(&self.eval_expression(expr))
+    }
+  }
+
   fn eval_expression(&self, expr: &Expression) -> Expression {
-    expr.clone()
+    match *expr {
+      Expression::Identifier(ref ident) => self.get(ident).clone(),
+      Expression::Binary(ref op, ref lhs, ref rhs) => {
+        let lhs = match self.eval_expression(&**lhs) { Expression::Int(i) => i, _ => 0 };
+        let rhs = match self.eval_expression(&**rhs) { Expression::Int(i) => i, _ => 0 };
+        match *op {
+          BinaryOp::Add => Expression::Int(lhs + rhs),
+          BinaryOp::Sub => Expression::Int(lhs - rhs),
+          BinaryOp::Mul => Expression::Int(lhs * rhs)
+        }
+      }
+      _ => expr.clone()
+    }
   }
 }
 

@@ -60,19 +60,17 @@ impl Context {
         }
       },
       Statement::Assign(ref ident, ref expr) => {
-        match self.derive_type(expr) {
-          Ok(ref derived) => match self.variables[self.depth].get(ident) {
-            Some(ref t) => if **t != *derived {
-              Err(format!("cannot assign rvalue to lvalue of a different type (expected: {}, actual: {})", t, derived))
-            } else {
-              Ok(())
-            },
-            None => Err(format!("use of undeclared variable '{}'", ident))
+        let derived = try!(self.derive_type(expr));
+        match self.variables[self.depth].get(ident) {
+          Some(ref t) => if **t != derived {
+            Err(format!("cannot assign rvalue to lvalue of a different type (expected: {}, actual: {})", t, derived))
+          } else {
+            Ok(())
           },
-          Err(msg) => Err(msg)
+          None => Err(format!("use of undeclared variable '{}'", ident))
         }
       },
-      Statement::Print(_) => Ok(())
+      Statement::Print(ref expr) => { try!(self.derive_type(expr)); Ok(()) }
     }
   }
 
@@ -81,24 +79,25 @@ impl Context {
       Expression::Int(_) => Ok(Type::Int),
       Expression::Char(_) => Ok(Type::Char),
       Expression::Bool(_) => Ok(Type::Bool),
+      Expression::Identifier(ref ident) => match self.variables[self.depth].get(ident) {
+        Some(ref t) => Ok((*t).clone()),
+        None => Err(format!("use of undeclared variable '{}'", ident))
+      },
       Expression::Unary(ref op, ref expr) => Err("Unimplemented".to_string()),
       Expression::Binary(ref op, ref lhs, ref rhs) => {
-        match self.derive_type(&**lhs) {
-          Ok(lhs) => match self.derive_type(&**rhs) {
-            Ok(rhs) => if lhs == rhs {
-              match *op {
-                BinaryOp::Add => match lhs {
-                  Type::Int => Ok(lhs),
-                  _ => Err(format!("invalid type on left of operator '{}' (expected: Int, actual: {})", op, lhs))
-                },
-                _ => Ok(lhs)
-              }
-            } else {
-              Err(format!("invalid type on right of operator '{}' (expected: {}, actual: {})", op, lhs, rhs))
+        let t1 = try!(self.derive_type(&**lhs));
+        let t2 = try!(self.derive_type(&**rhs));
+        
+        if t1 == t2 {
+          match *op {
+            BinaryOp::Add => match t1 {
+              Type::Int => Ok(t1),
+              _ => Err(format!("invalid type on left of operator '{}' (expected: Int, actual: {})", op, t1))
             },
-            Err(msg) => Err(msg)
-          },
-          Err(msg) => Err(msg)
+            _ => Ok(t1)
+          }
+        } else {
+          Err(format!("invalid type on right of operator '{}' (expected: {}, actual: {})", op, t1, t2))
         }
       }
     }

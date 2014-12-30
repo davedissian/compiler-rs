@@ -9,7 +9,7 @@ pub enum Statement {
   Block(Vec<Statement>),
   Declare(Type, String, Expression),
   Assign(String, Expression),
-  Print(String)
+  Print(Expression)
 }
 
 #[deriving(Show, Clone)]
@@ -17,6 +17,7 @@ pub enum Expression {
   Int(i32),
   Char(char),
   Bool(bool),
+  Identifier(String),
   Unary(UnaryOp, Box<Expression>),
   Binary(BinaryOp, Box<Expression>, Box<Expression>)
 }

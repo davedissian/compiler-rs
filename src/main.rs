@@ -14,7 +14,9 @@ fn main() {
       Stmt::Declare(Type::Unknown, "x".to_string(), Expr::Int(0)),
       Stmt::Assign("x".to_string(),
         Expr::Binary(Bin::Add, box Expr::Int(2), box Expr::Int(3))),
-      Stmt::Print("x".to_string())))
+      Stmt::Print(Expr::Identifier("x".to_string())),
+      Stmt::Print(Expr::Binary(Bin::Sub, box Expr::Int(3), box Expr::Identifier("x".to_string())))
+    ))
   );
 
   // Print program
