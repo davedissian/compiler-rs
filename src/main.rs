@@ -1,5 +1,9 @@
+#![feature(globs)]
+
 use ast::Statement as Stmt;
 use ast::Expression as Expr;
+use ast::UnaryOp as Un;
+use ast::BinaryOp as Bin;
 use ast::Type;
 
 mod ast;
@@ -7,9 +11,9 @@ mod ast;
 fn main() {
   let mut program = ast::Program(
     Stmt::Block(vec!(
-      Stmt::Declare(Type::Unknown, "x".to_string(), Expr::Bool(true)),
-      Stmt::Print("x".to_string()),
-      Stmt::Assign("x".to_string(), Expr::Int(6)),
+      Stmt::Declare(Type::Unknown, "x".to_string(), Expr::Int(0)),
+      Stmt::Assign("x".to_string(),
+        Expr::Binary(Bin::Add, box Expr::Int(2), box Expr::Int(3))),
       Stmt::Print("x".to_string())))
   );
 

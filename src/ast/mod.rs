@@ -15,7 +15,22 @@ pub enum Statement {
 #[deriving(Show, Clone)]
 pub enum Expression {
   Int(i32),
-  Bool(bool)
+  Char(char),
+  Bool(bool),
+  Unary(UnaryOp, Box<Expression>),
+  Binary(BinaryOp, Box<Expression>, Box<Expression>)
+}
+
+#[deriving(Show, Clone)]
+pub enum UnaryOp {
+  Neg
+}
+
+#[deriving(Show, Clone)]
+pub enum BinaryOp {
+  Add,
+  Sub,
+  Mul
 }
 
 #[deriving(Show, Clone)]
