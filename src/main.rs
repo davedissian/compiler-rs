@@ -1,14 +1,27 @@
+use ast::Statement as Stmt;
+use ast::Expression as Expr;
+use ast::Type;
+
 mod ast;
 
 fn main() {
-  let program = ast::Program {
-    top: ast::Statement::Block(vec!(
-      ast::Statement::Assign("x".to_string(), 5),
-      ast::Statement::Assign("y".to_string(), 7),
-      ast::Statement::Print("x".to_string()),
-      ast::Statement::Print("y".to_string()),
-      ast::Statement::Assign("x".to_string(), 6),
-      ast::Statement::Print("x".to_string())))
+  let mut program = ast::Program(
+    Stmt::Block(vec!(
+      Stmt::Declare(Type::Bool, "x".to_string(), Expr::Int(5)),
+      Stmt::Print("x".to_string()),
+      Stmt::Assign("x".to_string(), Expr::Int(6)),
+      Stmt::Print("x".to_string())))
+  );
+
+  // Print program
+  println!("{}", program);
+
+  // Semantic check and derive types
+  match ast::semantic::check_program(&mut program) {
+    Err(s) => println!("Semantic Error: {}", s),
+    _ => ()
   };
+  
+  // Run program
   ast::eval::eval_program(&program);
 }

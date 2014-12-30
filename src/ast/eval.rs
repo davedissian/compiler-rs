@@ -1,42 +1,53 @@
 use std::collections::HashMap;
-use ast::{Program, Statement};
+use ast::{Program, Statement, Expression, Type};
+
+pub fn eval_program(p: &Program) {
+  let Program(ref top) = *p;
+  let ctx = Context::new();
+  ctx.eval(top);
+}
 
 struct Context {
-  symbol_table: HashMap<String, int>
+  symbol_value: HashMap<String, Expression>,
+  symbol_types: HashMap<String, Type>
 }
 
 impl Context {
   fn new() -> Context {
     Context {
-      symbol_table: HashMap::new()
+      symbol_value: HashMap::new(),
+      symbol_types: HashMap::new()
     }
   }
 
-  fn set(&mut self, s: &String, i: int) {
-    self.symbol_table.insert(s.clone(), i);
-  }
-
-  fn get(&self, s: &String) -> int {
-    match self.symbol_table.get(s) {
-      Some(i) => *i,
-      None => 0
+  fn get(&self, s: &String) -> &Expression {
+    match self.symbol_value.get(s) {
+      Some(i) => i,
+      None => panic!("Identifier '{}' is not defined", s)
     }
   }
-}
 
-pub fn eval_program(p: &Program) {
-  eval_statement(&mut Context::new(), &p.top)
-}
+  fn eval(&mut self, s: &Statement) {
+    match *s {
+      Statement::Block(ref c) => for s in c.iter() { self.eval(s); },
+      Statement::Declare(ref t, ref ident, ref expr) => self.declare(t, ident, expr),
+      Statement::Assign(ref ident, ref expr) => self.assign(ident, expr),
+      Statement::Print(ref s) => println!("{} = {}", s, self.get(s))
+    }
+  }
 
-pub fn eval_statement(ctx: &mut Context, s: &Statement) {
-  match *s {
-    Statement::Block(ref c) => {
-      for s in c.iter() {
-        eval_statement(ctx, s);
-      }
-    },
-    Statement::Assign(ref s, i) => ctx.set(s, i),
-    Statement::Print(ref s) => println!("{} = {}", s, ctx.get(s)),
+  fn declare(&mut self, t: &Type, ident: &String, expr: &Expression) {
+    self.symbol_types.insert(ident.clone(), t.clone());
+    self.assign(ident, expr);
+  }
+
+  fn assign(&mut self, ident: &String, expr: &Expression) {
+    let evaluated_expr = self.eval_expression(expr);
+    self.symbol_value.insert(ident.clone(), evaluated_expr);
+  }
+
+  fn eval_expression(&self, expr: &Expression) -> Expression {
+    expr.clone()
   }
 }
 

@@ -7,9 +7,8 @@ Build using `cargo build`
 
 The Language
 ---------
-
 The language syntax is a simple imperative langauge with functional constructs
-such as higher-order functions and lambdas. It's based on the WACC programming
+such as higher-order functions and lambdas. It is inspired by the WACC
 language developed at Imperial College London for the second year BEng
 Computing compilers project.
 

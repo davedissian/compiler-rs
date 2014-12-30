@@ -1,5 +1,5 @@
 [package]
 
-name = "simplec"
+name = "compile"
 version = "0.0.1"
-authors = ["David Avedissian <davedissian@users.noreply.github.com>"]
+authors = ["David Avedissian <avedissian.david@gmail.com>"]
