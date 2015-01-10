@@ -8,7 +8,7 @@ pub fn check_program(p: &mut Program) -> Result<(), String> {
 }
 
 struct Context {
-    depth: uint,
+    depth: usize,
     variables: Vec<HashMap<String, Type>>
 }
 
@@ -53,7 +53,7 @@ impl Context {
                             self.variables[self.depth].insert(ident.clone(), t.clone());
                             Ok(())
                         } else {
-                            Err(format!("value being used to initialise '{}' does not match its declared type (expected: {}, actual: {})", ident, t, derived))
+                            Err(format!("value being used to initialise '{:?}' does not match its declared type (expected: {:?}, actual: {:?})", ident, t, derived))
                         }
                     },
                     Err(msg) => Err(msg)
@@ -63,11 +63,11 @@ impl Context {
                 let derived = try!(self.derive_type(expr));
                 match self.variables[self.depth].get(ident) {
                     Some(ref t) => if **t != derived {
-                        Err(format!("cannot assign rvalue to lvalue of a different type (expected: {}, actual: {})", t, derived))
+                        Err(format!("cannot assign rvalue to lvalue of a different type (expected: {:?}, actual: {:?})", t, derived))
                     } else {
                         Ok(())
                     },
-                    None => Err(format!("use of undeclared variable '{}'", ident))
+                    None => Err(format!("use of undeclared variable '{:?}'", ident))
                 }
             },
             Statement::Print(ref expr) => { try!(self.derive_type(expr)); Ok(()) }
@@ -81,7 +81,7 @@ impl Context {
             Expression::Bool(_) => Ok(Type::Bool),
             Expression::Identifier(ref ident) => match self.variables[self.depth].get(ident) {
                 Some(ref t) => Ok((*t).clone()),
-                None => Err(format!("use of undeclared variable '{}'", ident))
+                None => Err(format!("use of undeclared variable '{:?}'", ident))
             },
             Expression::Unary(ref op, ref expr) => Err("Unimplemented".to_string()),
             Expression::Binary(ref op, ref lhs, ref rhs) => {
@@ -92,12 +92,12 @@ impl Context {
                     match *op {
                         BinaryOp::Add => match t1 {
                             Type::Int => Ok(t1),
-                            _ => Err(format!("invalid type on left of operator '{}' (expected: Int, actual: {})", op, t1))
+                            _ => Err(format!("invalid type on left of operator '{:?}' (expected: Int, actual: {:?})", op, t1))
                         },
                         _ => Ok(t1)
                     }
                 } else {
-                    Err(format!("invalid type on right of operator '{}' (expected: {}, actual: {})", op, t1, t2))
+                    Err(format!("invalid type on right of operator '{:?}' (expected: {:?}, actual: {:?})", op, t1, t2))
                 }
             }
         }

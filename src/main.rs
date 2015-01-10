@@ -1,4 +1,4 @@
-#![feature(globs)]
+#![feature(box_syntax)]
 
 use ast::Statement as Stmt;
 use ast::Expression as Expr;
@@ -20,11 +20,11 @@ fn main() {
     );
 
     // Print program
-    println!("{}", program);
+    println!("{:?}", program);
 
     // Semantic check and derive types
     match ast::semantic::check_program(&mut program) {
-        Err(s) => println!("Semantic Error: {}", s),
+        Err(s) => println!("Semantic Error: {:?}", s),
         _ => ()
     };
     
