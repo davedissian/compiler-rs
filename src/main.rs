@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+#![allow(unstable)]
 #![feature(box_syntax)]
 #![feature(plugin)]
 
@@ -11,7 +12,7 @@ peg! wacc(r#"
 
     #[pub]
     program -> ast::Program
-        = f:function { ast::Program(vec![f]) }
+        = mlsep* f:function mlsep* { ast::Program(vec![f]) }
 
     // Functions
     function -> ast::Function
@@ -28,19 +29,29 @@ peg! wacc(r#"
     // Statements
     statement -> ast::Statement
         = "{" mlsep* sl:(statement ++ (sep* [;\n] sep*)) mlsep* "}" { ast::Statement::Block(sl) }
-        / "var" sep+ s:str_lit sep* "=" sep* i:int_lit sep* { ast::Statement::Declare(ast::Type::Unknown, s, i) }
+        / t:type sep+ s:str_lit sep* "=" sep* e:expression sep* { ast::Statement::Declare(t, s, e) }
         / "println" sep* e:expression { ast::Statement::Print(e) }
 
     // Expressions
     expression -> ast::Expression
-        = s:str_lit { ast::Expression::Identifier(s) }
+        = "-"? [0-9]+ { ast::Expression::Int(match_str.parse().unwrap()) }
+        / "true" { ast::Expression::Bool(true) }
+        / "false" { ast::Expression::Bool(false) }
+        / s:str_lit { ast::Expression::Identifier(s) }
 
     str_lit -> String
         = [a-z]+ { match_str.to_string() }
 
-    int_lit -> ast::Expression
-        = [0-9]+ { ast::Expression::Int(match_str.parse().unwrap()) }
+    // Types
+    type -> ast::Type
+        = "var" { ast::Type::Unknown }
+        / "int" { ast::Type::Int }
+        / "char" { ast::Type::Char }
+        / "bool" { ast::Type::Bool }
+        /// t:type "[]" { ast::Type::Array(box t) }
+        / "pair<" t1:type "," t2:type ">" { ast::Type::Pair(box t1, box t2) }
 
+    // Separators
     sep
         = [ \t]
 
@@ -49,19 +60,21 @@ peg! wacc(r#"
 "#);
 
 fn main() {
-    // Generate AST
-    let mut program = match wacc::program("func main() { var x = 4; println x }") {
-        Ok(p) => p,
-        Err(s) => { println!("Syntax Error: {:?}", s); return }
-    };
+    // Gather input
+    let input = String::from_utf8(std::io::stdin().read_to_end().unwrap()).unwrap();
+    println!("Input:\n{}\n", input);
 
-    // Print program
-    println!("{:?}", program);
+    // Parse program
+    let mut program = match wacc::program(input.as_slice()) {
+        Ok(p) => p,
+        Err(s) => { println!("Syntax Error: {}", s); return }
+    };
+    println!("AST:\n{:?}\n", program);
 
     // Semantic check and derive types
     match ast::semantic::check_program(&mut program) {
         Ok(_) => {},
-        Err(s) => { println!("Semantic Error: {:?}", s); return }
+        Err(s) => { println!("Semantic Error: {}", s); return }
     };
     
     // Run program

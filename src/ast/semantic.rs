@@ -81,7 +81,7 @@ impl Context {
                     } else {
                         Ok(())
                     },
-                    None => Err(format!("use of undeclared variable '{:?}'", ident))
+                    None => Err(format!("use of undeclared variable '{}'", ident))
                 }
             },
 
@@ -101,7 +101,7 @@ impl Context {
             Expression::Identifier(ref ident) => {
                 match self.variables[self.depth].get(ident) {
                     Some(ref t) => Ok((*t).clone()),
-                    None => Err(format!("use of undeclared variable '{:?}'", ident))
+                    None => Err(format!("use of undeclared variable '{}'", ident))
                 }
             },
 
