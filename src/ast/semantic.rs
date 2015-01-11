@@ -46,7 +46,7 @@ impl Context {
 
             Statement::Declare(ref mut t, ref ident, ref expr) => {
                 let derived = try!(self.derive_type(expr));
-                        
+
                 if *t == Type::Unknown {
                     *t = derived.clone();
                 }
@@ -91,12 +91,12 @@ impl Context {
             },
 
             Expression::Unary(ref op, ref expr) => {
-                let exprType = try!(self.derive_type(&**expr));
+                let expr_type = try!(self.derive_type(&**expr));
                 match *op {
                     UnaryOp::Neg => {
-                        match exprType {
-                            Type::Int => Ok(exprType),
-                            _ => Err(format!("invalid type in unary operator '{:?}' (expected: int, actual: {:?})", op, exprType))
+                        match expr_type {
+                            Type::Int => Ok(expr_type),
+                            _ => Err(format!("invalid type in unary operator '{:?}' (expected: int, actual: {:?})", op, expr_type))
                         }
                     }
                 }
