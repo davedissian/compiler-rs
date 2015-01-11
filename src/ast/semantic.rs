@@ -37,28 +37,27 @@ impl Context {
                 for s in v.iter_mut() {
                     match self.check_statement(s) {
                         Err(msg) => { self.pop_scope(); return Err(msg); },
-                        Ok(_) => ()
+                        Ok(_) => {}
                     }
                 }
                 self.pop_scope();
                 Ok(())
             },
+
             Statement::Declare(ref mut t, ref ident, ref expr) => {
-                match self.derive_type(expr) {
-                    Ok(ref derived) => {
-                        if *t == Type::Unknown {
-                            *t = derived.clone();
-                        }
-                        if *t == *derived {
-                            self.variables[self.depth].insert(ident.clone(), t.clone());
-                            Ok(())
-                        } else {
-                            Err(format!("value being used to initialise '{:?}' does not match its declared type (expected: {:?}, actual: {:?})", ident, t, derived))
-                        }
-                    },
-                    Err(msg) => Err(msg)
+                let derived = try!(self.derive_type(expr));
+                        
+                if *t == Type::Unknown {
+                    *t = derived.clone();
+                }
+                if *t == derived {
+                    self.variables[self.depth].insert(ident.clone(), t.clone());
+                    Ok(())
+                } else {
+                    Err(format!("value being used to initialise '{:?}' does not match its declared type (expected: {:?}, actual: {:?})", ident, t, derived))
                 }
             },
+
             Statement::Assign(ref ident, ref expr) => {
                 let derived = try!(self.derive_type(expr));
                 match self.variables[self.depth].get(ident) {
@@ -70,7 +69,11 @@ impl Context {
                     None => Err(format!("use of undeclared variable '{:?}'", ident))
                 }
             },
-            Statement::Print(ref expr) => { try!(self.derive_type(expr)); Ok(()) }
+
+            Statement::Print(ref expr) => {
+                try!(self.derive_type(expr));
+                Ok(())
+            }
         }
     }
 
@@ -79,22 +82,38 @@ impl Context {
             Expression::Int(_) => Ok(Type::Int),
             Expression::Char(_) => Ok(Type::Char),
             Expression::Bool(_) => Ok(Type::Bool),
-            Expression::Identifier(ref ident) => match self.variables[self.depth].get(ident) {
-                Some(ref t) => Ok((*t).clone()),
-                None => Err(format!("use of undeclared variable '{:?}'", ident))
+
+            Expression::Identifier(ref ident) => {
+                match self.variables[self.depth].get(ident) {
+                    Some(ref t) => Ok((*t).clone()),
+                    None => Err(format!("use of undeclared variable '{:?}'", ident))
+                }
             },
-            Expression::Unary(ref op, ref expr) => Err("Unimplemented".to_string()),
+
+            Expression::Unary(ref op, ref expr) => {
+                let exprType = try!(self.derive_type(&**expr));
+                match *op {
+                    UnaryOp::Neg => {
+                        match exprType {
+                            Type::Int => Ok(exprType),
+                            _ => Err(format!("invalid type in unary operator '{:?}' (expected: int, actual: {:?})", op, exprType))
+                        }
+                    }
+                }
+            },
+
             Expression::Binary(ref op, ref lhs, ref rhs) => {
                 let t1 = try!(self.derive_type(&**lhs));
                 let t2 = try!(self.derive_type(&**rhs));
                 
                 if t1 == t2 {
                     match *op {
-                        BinaryOp::Add => match t1 {
-                            Type::Int => Ok(t1),
-                            _ => Err(format!("invalid type on left of operator '{:?}' (expected: Int, actual: {:?})", op, t1))
-                        },
-                        _ => Ok(t1)
+                        BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul => {
+                            match t1 {
+                                Type::Int => Ok(t1),
+                                _ => Err(format!("invalid type on left of operator '{:?}' (expected: int, actual: {:?})", op, t1))
+                            }
+                        }
                     }
                 } else {
                     Err(format!("invalid type on right of operator '{:?}' (expected: {:?}, actual: {:?})", op, t1, t2))

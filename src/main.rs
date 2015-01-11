@@ -25,7 +25,7 @@ fn main() {
     // Semantic check and derive types
     match ast::semantic::check_program(&mut program) {
         Err(s) => println!("Semantic Error: {:?}", s),
-        _ => ()
+        _ => {}
     };
     
     // Run program
