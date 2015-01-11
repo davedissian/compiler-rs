@@ -9,44 +9,47 @@ mod ast;
 peg! wacc(r#"
     use ast;
 
-    blank -> ()
-        =  {}
-
     #[pub]
     program -> ast::Program
-        = sl:statement_list { ast::Program(ast::Statement::Block(sl)) }
+        = s:statement { ast::Program(s) }
 
-    statement_list -> Vec<ast::Statement>
-        = s:statement sep* statement_sep sep* sl:statement_list { let mut v = vec![s]; v.extend(sl.into_iter()); v }
-        / s:statement { vec![s] }
-
-    statement_sep -> ()
-        = [;\n]
-
+    // Statements
     statement -> ast::Statement
-        = "var" sep+ s:str_lit sep* "=" sep* i:int_expr sep* { ast::Statement::Declare(ast::Type::Unknown, s, i) }
+        = "var" sep* s:str_lit sep* "=" sep* i:int_lit sep* { ast::Statement::Declare(ast::Type::Unknown, s, i) }
+        / "println" sep* e:expression { ast::Statement::Print(e) }
+        / "{" mlsep* sl:(statement ++ (sep* [;\n] sep*)) mlsep* "}" { ast::Statement::Block(sl) }
+
+    // Expressions
+    expression -> ast::Expression
+        = s:str_lit { ast::Expression::Identifier(s) }
 
     str_lit -> String
         = [a-z]+ { match_str.to_string() }
 
-    int_expr -> ast::Expression
+    int_lit -> ast::Expression
         = [0-9]+ { ast::Expression::Int(match_str.parse().unwrap()) }
 
-    sep -> ()
+    sep
         = [ \t]
+
+    mlsep
+        = [ \t\n\r]
 "#);
 
 fn main() {
     // Generate AST
-    let mut program = wacc::program("var x = 0; var y = 2").unwrap();
+    let mut program = match wacc::program("{var x = 4; println x}") {
+        Ok(p) => p,
+        Err(s) => { println!("Syntax Error: {:?}", s); return }
+    };
 
     // Print program
     println!("{:?}", program);
 
     // Semantic check and derive types
     match ast::semantic::check_program(&mut program) {
-        Err(s) => println!("Semantic Error: {:?}", s),
-        _ => {}
+        Ok(_) => {},
+        Err(s) => { println!("Semantic Error: {:?}", s); return }
     };
     
     // Run program
