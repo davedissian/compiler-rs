@@ -2,7 +2,13 @@ pub mod semantic;
 pub mod eval;
 
 #[derive(Show)]
-pub struct Program(pub Statement);
+pub struct Program(pub Vec<Function>);
+
+#[derive(Show)]
+pub struct Function {
+    pub name: String,
+    pub statements: Vec<Statement>
+}
 
 #[derive(Show)]
 pub enum Statement {

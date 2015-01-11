@@ -11,13 +11,25 @@ peg! wacc(r#"
 
     #[pub]
     program -> ast::Program
-        = s:statement { ast::Program(s) }
+        = f:function { ast::Program(vec![f]) }
+
+    // Functions
+    function -> ast::Function
+        = "func" sep+ n:str_lit "()" mlsep* s:statement {
+                ast::Function {
+                    name: n,
+                    statements: match s {
+                        ast::Statement::Block(v) => v,
+                        _ => vec![s]
+                    }
+                }
+            }
 
     // Statements
     statement -> ast::Statement
-        = "var" sep* s:str_lit sep* "=" sep* i:int_lit sep* { ast::Statement::Declare(ast::Type::Unknown, s, i) }
+        = "{" mlsep* sl:(statement ++ (sep* [;\n] sep*)) mlsep* "}" { ast::Statement::Block(sl) }
+        / "var" sep+ s:str_lit sep* "=" sep* i:int_lit sep* { ast::Statement::Declare(ast::Type::Unknown, s, i) }
         / "println" sep* e:expression { ast::Statement::Print(e) }
-        / "{" mlsep* sl:(statement ++ (sep* [;\n] sep*)) mlsep* "}" { ast::Statement::Block(sl) }
 
     // Expressions
     expression -> ast::Expression
@@ -38,7 +50,7 @@ peg! wacc(r#"
 
 fn main() {
     // Generate AST
-    let mut program = match wacc::program("{var x = 4; println x}") {
+    let mut program = match wacc::program("func main() { var x = 4; println x }") {
         Ok(p) => p,
         Err(s) => { println!("Syntax Error: {:?}", s); return }
     };

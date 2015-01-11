@@ -2,9 +2,12 @@ use std::collections::HashMap;
 use ast::*;
 
 pub fn check_program(p: &mut Program) -> Result<(), String> {
-    let Program(ref mut top) = *p;
+    let Program(ref mut fs) = *p;
     let mut ctx = Context::new();
-    ctx.check_statement(top)
+    for f in fs.iter_mut() {
+        try!(ctx.check_function(f));
+    }
+    Ok(())
 }
 
 struct Context {
@@ -30,7 +33,19 @@ impl Context {
         self.depth = self.variables.len() - 1;
     }
 
-    fn check_statement(&mut self, s: &mut Statement) -> Result<(), String>{
+    fn check_function(&mut self, f: &mut Function) -> Result<(), String> {
+        self.push_scope();
+        for s in f.statements.iter_mut() {
+            match self.check_statement(s) {
+                Err(msg) => { self.pop_scope(); return Err(msg); },
+                Ok(_) => {}
+            }
+        }
+        self.pop_scope();
+        Ok(())
+    }
+
+    fn check_statement(&mut self, s: &mut Statement) -> Result<(), String> {
         match *s {
             Statement::Block(ref mut v) => {
                 self.push_scope();

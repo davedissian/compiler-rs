@@ -2,9 +2,11 @@ use std::collections::HashMap;
 use ast::*;
 
 pub fn eval_program(p: &Program) {
-    let Program(ref top) = *p;
+    let Program(ref functions) = *p;
     let mut ctx = Context::new();
-    ctx.eval(top);
+
+    // Just evaluate the last function for now
+    ctx.eval_function(&functions[functions.len() - 1]);
 }
 
 struct Context {
@@ -27,9 +29,15 @@ impl Context {
         }
     }
 
-    fn eval(&mut self, s: &Statement) {
+    fn eval_function(&mut self, f: &Function) {
+        for s in f.statements.iter() {
+            self.eval_statement(s);
+        }
+    }
+
+    fn eval_statement(&mut self, s: &Statement) {
         match *s {
-            Statement::Block(ref c) => for s in c.iter() { self.eval(s); },
+            Statement::Block(ref c) => for s in c.iter() { self.eval_statement(s); },
             Statement::Declare(ref t, ref ident, ref expr) => self.declare(t, ident, expr),
             Statement::Assign(ref ident, ref expr) => self.assign(ident, expr),
             Statement::Print(ref expr) => self.print(expr)
