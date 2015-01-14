@@ -44,12 +44,15 @@ peg! wacc(r#"
 
     // Types
     type -> ast::Type
+        = t:type "[]" { ast::Type::Array(box t) }
+        / "pair<" t1:type "," t2:type ">" { ast::Type::Pair(box t1, box t2) }
+        / t:basic_type { t }
+
+    basic_type -> ast::Type
         = "var" { ast::Type::Unknown }
         / "int" { ast::Type::Int }
         / "char" { ast::Type::Char }
         / "bool" { ast::Type::Bool }
-        /// t:type "[]" { ast::Type::Array(box t) }
-        / "pair<" t1:type "," t2:type ">" { ast::Type::Pair(box t1, box t2) }
 
     // Separators
     sep
