@@ -1,16 +1,16 @@
 pub mod semantic;
 pub mod eval;
 
-#[derive(Show)]
+#[derive(Debug)]
 pub struct Program(pub Vec<Function>);
 
-#[derive(Show)]
+#[derive(Debug)]
 pub struct Function {
     pub name: String,
     pub statements: Vec<Statement>
 }
 
-#[derive(Show)]
+#[derive(Debug)]
 pub enum Statement {
     Block(Vec<Statement>),
     Declare(Type, String, Expression),
@@ -18,7 +18,7 @@ pub enum Statement {
     Print(Expression)
 }
 
-#[derive(Show, Clone)]
+#[derive(Debug, Clone)]
 pub enum Expression {
     Int(i32),
     Char(char),
@@ -28,19 +28,19 @@ pub enum Expression {
     Binary(BinaryOp, Box<Expression>, Box<Expression>)
 }
 
-#[derive(Show, Clone)]
+#[derive(Debug, Clone)]
 pub enum UnaryOp {
     Neg
 }
 
-#[derive(Show, Clone)]
+#[derive(Debug, Clone)]
 pub enum BinaryOp {
     Add,
     Sub,
     Mul
 }
 
-#[derive(Show, Clone)]
+#[derive(Debug, Clone)]
 pub enum Type {
     Unknown,
     Error,

@@ -2,8 +2,10 @@
 #![allow(unstable)]
 #![feature(box_syntax)]
 #![feature(plugin)]
+#![feature(old_io)]
+#![plugin(peg_syntax_ext)]
 
-#[plugin] extern crate peg_syntax_ext;
+use std::old_io;
 
 mod ast;
 
@@ -64,7 +66,7 @@ peg! wacc(r#"
 
 fn main() {
     // Gather input
-    let input = String::from_utf8(std::io::stdin().read_to_end().unwrap()).unwrap();
+    let input = String::from_utf8(old_io::stdin().read_to_end().unwrap()).unwrap();
     println!("Input:\n{}\n", input);
 
     // Parse program
