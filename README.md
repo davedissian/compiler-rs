@@ -1,16 +1,13 @@
-compiler-rs
+wacc-rs
 =========
 
-A simple compiler for a simple toy language written in Rust.
+A compiler for a simple stringly typed programming language, heavily inspired by WACC. This compiler (will) have two front-ends, the new enhanced syntax and the syntax which matches the original WACC specification.
 
 Build using `cargo build`
 
 The Language
 ---------
-The language syntax is a simple imperative langauge with functional constructs
-such as higher-order functions and lambdas. It is inspired by the WACC
-language developed at Imperial College London for the second year BEng
-Computing compilers project.
+The language syntax is a simple imperative langauge with functional constructs such as higher-order functions and lambdas. It is inspired by the WACC programming language developed at Imperial College London for the second year Computing compilers project.
 
 Changes from WACC include:
 - Blocks use C style braces instead
@@ -20,7 +17,7 @@ Changes from WACC include:
 - Calling functions no longer requires the "call" keyword
 - Functions can be called without storing the result
 - Semi-colons are optional
-- Functions can be declared inline (but are NOT closures... yet)
+- Lambdas (which cannot capture variables) can be declared inline
 - Pair types can be fully nested
 - Comments now use // rather than #
 
@@ -85,7 +82,71 @@ func main() {
 }
 ```
 
-Lambda
+Extension Ideas
+---------
+
+Structs
+```
+struct Data {
+  int[] list
+}
+
+func main() {
+  var d = Data([1, 2, 3])
+  println d.list
+}
+```
+
+Generics
+```
+struct Heap<T> {
+  T data
+}
+
+func modify(Heap<int> h) {
+  h.data = 6
+}
+
+func main() {
+  var on_heap = Heap<int>(5)
+  modify(on_heap)
+  println on_heap.data
+}
+```
+
+Modules
+```
+import random
+
+func main() {
+  random.seed()
+  println random.gen()
+}
+```
+
+Built-ins
+```
+struct Heap<T> {
+  T data
+}
+
+func __assign__(Heap<int> h, int d) {
+  h.data = d
+}
+
+func __show__(Heap<int> h) {
+  print h.data
+}
+
+func main() {
+  var x = Heap<int>(3)
+  println x
+  x = 4
+  println x
+}
+```
+
+Lambdas
 ```
 func main() {
   var f = func(int x, int y) -> int {
@@ -98,6 +159,21 @@ func main() {
 
 Higher Order Functions
 ```
+func map(func(int, int) -> int f, int[] list) -> int[] {
+  for i = 0; i < len list; i++ {
+    list[i] = f(list[i])
+  }
+  return list
+}
+
+func reduce(func(int, int) -> int f, int[] list) -> int {
+  var acc = 0
+  for i = 0; i < (len list) - 1; i++ {
+    acc += f(list[i], list[i + 1])
+  }
+  return acc
+}
+
 func main() {
   var list = [1, 2, 3]
   var add = func(int x, int y) { return x + y }
