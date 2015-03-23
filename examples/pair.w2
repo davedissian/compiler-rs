@@ -1,0 +1,12 @@
+func main() {
+    pair<int, int> p = newpair(2, 3)
+
+    // Print pair
+    print fst p
+    print " + "
+    print snd p
+    print " = "
+    println squish_pair(p)
+
+    free p
+}
