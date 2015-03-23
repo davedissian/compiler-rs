@@ -1,6 +1,7 @@
 #![allow(dead_code)]
-#![allow(unstable)]
 #![feature(box_syntax)]
+#![feature(core)]
+#![feature(collections)]
 #![feature(plugin)]
 #![feature(old_io)]
 #![plugin(peg_syntax_ext)]
@@ -9,7 +10,11 @@ use std::old_io;
 
 mod ast;
 
-peg! wacc(r#"
+// Old WACC syntax
+// TODO
+
+// New syntax (eg. WACC2 or W2)
+peg! w2(r#"
     use ast;
 
     #[pub]
@@ -46,8 +51,8 @@ peg! wacc(r#"
 
     // Types
     type -> ast::Type
-        = t:type "[]" { ast::Type::Array(box t) }
-        / "pair<" t1:type "," t2:type ">" { ast::Type::Pair(box t1, box t2) }
+        //= t:type "[]" { ast::Type::Array(box t) }
+        = "pair<" t1:type "," t2:type ">" { ast::Type::Pair(box t1, box t2) }
         / t:basic_type { t }
 
     basic_type -> ast::Type
@@ -70,7 +75,7 @@ fn main() {
     println!("Input:\n{}\n", input);
 
     // Parse program
-    let mut program = match wacc::program(input.as_slice()) {
+    let mut program = match w2::program(input.as_slice()) {
         Ok(p) => p,
         Err(s) => { println!("Syntax Error: {}", s); return }
     };
