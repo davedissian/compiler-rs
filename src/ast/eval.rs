@@ -1,3 +1,4 @@
+/*
 use std::collections::HashMap;
 use ast::*;
 
@@ -79,4 +80,4 @@ impl Context {
         }
     }
 }
-
+*/

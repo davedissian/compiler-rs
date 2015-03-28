@@ -1,5 +1,4 @@
 pub mod semantic;
-pub mod eval;
 
 #[derive(Debug)]
 pub struct Program(pub Vec<Function>);
