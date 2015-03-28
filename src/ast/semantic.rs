@@ -111,6 +111,12 @@ impl Context {
                 }
             },
 
+            Expression::FunctionCall(_) => {
+                // Lookup function
+                // Get return type
+                Err(format!("cannot derive type of function call - unimplemented"))
+            }
+
             Expression::Unary(ref op, ref expr) => {
                 let expr_type = try!(self.derive_type(&**expr));
                 match *op {

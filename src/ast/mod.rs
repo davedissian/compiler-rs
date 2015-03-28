@@ -26,6 +26,7 @@ pub enum Expression {
     Bool(bool),
     Str(String),
     Identifier(String),
+    FunctionCall(String),
     Unary(UnaryOp, Box<Expression>),
     Binary(BinaryOp, Box<Expression>, Box<Expression>)
 }

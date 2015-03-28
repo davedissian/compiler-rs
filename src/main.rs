@@ -73,7 +73,7 @@ peg! w2(r#"
         / "true" { ast::Expression::Bool(true) }
         / "false" { ast::Expression::Bool(false) }
         / s:identifier "(" sep* ((char_literal*) ** (sep* "," sep*)) ")" {
-                ast::Expression::Str("Hello".to_string())
+                ast::Expression::FunctionCall(s)
             }
         / s:identifier { ast::Expression::Identifier(s) }
 
@@ -103,7 +103,7 @@ peg! w2(r#"
     mlsep = [ \t\n\r]
 "#);
 
-fn print_code(s: String) {
+fn print_code(s: &str) {
     let lines: Vec<&str> = s.split("\n").collect();
     let mut counter = 1;
     for l in lines {
@@ -116,7 +116,7 @@ fn main() {
     // Gather input
     let input = String::from_utf8(old_io::stdin().read_to_end().unwrap()).unwrap();
     println!("Input:");
-    print_code(input.clone());
+    print_code(input.as_slice());
     println!("");
 
     // Parse program
