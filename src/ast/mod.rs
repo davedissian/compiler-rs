@@ -6,6 +6,7 @@ pub struct Program(pub Vec<Function>);
 #[derive(Debug)]
 pub struct Function {
     pub name: String,
+    pub returns: Type,
     pub statements: Vec<Statement>
 }
 
@@ -14,6 +15,7 @@ pub enum Statement {
     Block(Vec<Statement>),
     Declare(Type, String, Expression),
     Assign(String, Expression),
+    Return(Expression),
     Print(Expression)
 }
 
@@ -37,7 +39,9 @@ pub enum UnaryOp {
 pub enum BinaryOp {
     Add,
     Sub,
-    Mul
+    Mul,
+    Div,
+    Mod
 }
 
 #[derive(Debug, Clone)]
@@ -45,6 +49,7 @@ pub enum Type {
     Unknown,
     Error,
     Any,
+    Void,
     Int,
     Char,
     Bool,
@@ -59,6 +64,7 @@ impl PartialEq for Type {
             Type::Unknown => match *other { Type::Unknown => true, _ => false },
             Type::Error => false,
             Type::Any => true,
+            Type::Void => match *other { Type::Void => true, _ => false },
             Type::Int => match *other { Type::Int => true, _ => false },
             Type::Char => match *other { Type::Char => true, _ => false },
             Type::Bool => match *other { Type::Bool => true, _ => false },

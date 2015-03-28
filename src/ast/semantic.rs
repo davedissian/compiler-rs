@@ -85,6 +85,11 @@ impl Context {
                 }
             },
 
+            Statement::Return(ref expr) => {
+                try!(self.derive_type(expr));
+                Ok(())
+            }
+
             Statement::Print(ref expr) => {
                 try!(self.derive_type(expr));
                 Ok(())
@@ -124,7 +129,7 @@ impl Context {
                 
                 if t1 == t2 {
                     match *op {
-                        BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul => {
+                        BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul | BinaryOp::Div | BinaryOp::Mod => {
                             match t1 {
                                 Type::Int => Ok(t1),
                                 _ => Err(format!("invalid type on left of operator '{:?}' (expected: int, actual: {:?})", op, t1))
