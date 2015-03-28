@@ -11,7 +11,13 @@ use std::old_io;
 mod ast;
 
 // Old WACC syntax
-// TODO
+peg! w1(r#"
+    use ast;
+
+    #[pub]
+    program -> ast::Program
+        = .* { ast::Program(vec![]) }
+"#);
 
 // New syntax (eg. WACC2 or W2)
 peg! w2(r#"
@@ -23,7 +29,7 @@ peg! w2(r#"
 
     // Functions
     function -> ast::Function
-        = "func" sep+ n:str_lit "()" mlsep* s:statement {
+        = "func" sep+ n:identifier "()" mlsep* s:statement {
                 ast::Function {
                     name: n,
                     statements: match s {
@@ -36,18 +42,25 @@ peg! w2(r#"
     // Statements
     statement -> ast::Statement
         = "{" mlsep* sl:(statement ++ (sep* [;\n] sep*)) mlsep* "}" { ast::Statement::Block(sl) }
-        / t:type sep+ s:str_lit sep* "=" sep* e:expression sep* { ast::Statement::Declare(t, s, e) }
+        / t:type sep+ s:identifier sep* "=" sep* e:expression sep* { ast::Statement::Declare(t, s, e) }
         / "println" sep* e:expression { ast::Statement::Print(e) }
 
     // Expressions
     expression -> ast::Expression
         = "-"? [0-9]+ { ast::Expression::Int(match_str.parse().unwrap()) }
+        / '"' s:str_literal '"' { ast::Expression::Str(s) }
         / "true" { ast::Expression::Bool(true) }
         / "false" { ast::Expression::Bool(false) }
-        / s:str_lit { ast::Expression::Identifier(s) }
+        / s:identifier { ast::Expression::Identifier(s) }
 
-    str_lit -> String
-        = [a-z]+ { match_str.to_string() }
+    str_literal -> String
+        = char_literal* { match_str.to_string() }
+    
+    char_literal -> char
+        = [a-zA-Z0-9 \n] { match_str.char_at(0) }
+
+    identifier -> String
+        = [a-zA-Z_]+ { match_str.to_string() }
 
     // Types
     type -> ast::Type
@@ -62,11 +75,8 @@ peg! w2(r#"
         / "bool" { ast::Type::Bool }
 
     // Separators
-    sep
-        = [ \t]
-
-    mlsep
-        = [ \t\n\r]
+    sep = [ \t]
+    mlsep = [ \t\n\r]
 "#);
 
 fn main() {
@@ -87,6 +97,5 @@ fn main() {
         Err(s) => { println!("Semantic Error: {}", s); return }
     };
     
-    // Run program
-    ast::eval::eval_program(&program);
+    // Generate Code
 }

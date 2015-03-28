@@ -25,12 +25,12 @@ impl Context {
 
     fn push_scope(&mut self) {
         self.variables.push(HashMap::new());
-        self.depth = self.variables.len() - 1;
+        self.depth = self.variables.len();
     }
 
     fn pop_scope(&mut self) {
         self.variables.pop();
-        self.depth = self.variables.len() - 1;
+        self.depth = self.variables.len();
     }
 
     fn check_function(&mut self, f: &mut Function) -> Result<(), String> {
@@ -66,7 +66,7 @@ impl Context {
                     *t = derived.clone();
                 }
                 if *t == derived {
-                    self.variables[self.depth].insert(ident.clone(), t.clone());
+                    self.variables[self.depth - 1].insert(ident.clone(), t.clone());
                     Ok(())
                 } else {
                     Err(format!("value being used to initialise '{:?}' does not match its declared type (expected: {:?}, actual: {:?})", ident, t, derived))
@@ -75,7 +75,7 @@ impl Context {
 
             Statement::Assign(ref ident, ref expr) => {
                 let derived = try!(self.derive_type(expr));
-                match self.variables[self.depth].get(ident) {
+                match self.variables[self.depth - 1].get(ident) {
                     Some(ref t) => if **t != derived {
                         Err(format!("cannot assign rvalue to lvalue of a different type (expected: {:?}, actual: {:?})", t, derived))
                     } else {
@@ -97,9 +97,10 @@ impl Context {
             Expression::Int(_) => Ok(Type::Int),
             Expression::Char(_) => Ok(Type::Char),
             Expression::Bool(_) => Ok(Type::Bool),
+            Expression::Str(_) => Ok(Type::Str),
 
             Expression::Identifier(ref ident) => {
-                match self.variables[self.depth].get(ident) {
+                match self.variables[self.depth - 1].get(ident) {
                     Some(ref t) => Ok((*t).clone()),
                     None => Err(format!("use of undeclared variable '{}'", ident))
                 }

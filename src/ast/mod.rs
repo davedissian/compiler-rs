@@ -23,6 +23,7 @@ pub enum Expression {
     Int(i32),
     Char(char),
     Bool(bool),
+    Str(String),
     Identifier(String),
     Unary(UnaryOp, Box<Expression>),
     Binary(BinaryOp, Box<Expression>, Box<Expression>)
@@ -48,6 +49,7 @@ pub enum Type {
     Int,
     Char,
     Bool,
+    Str,
     Array(Box<Type>),
     Pair(Box<Type>, Box<Type>)
 }
@@ -61,6 +63,7 @@ impl PartialEq for Type {
             Type::Int => match *other { Type::Int => true, _ => false },
             Type::Char => match *other { Type::Char => true, _ => false },
             Type::Bool => match *other { Type::Bool => true, _ => false },
+            Type::Str => match *other { Type::Str => true, _ => false },
             _ => false
         }
     }
