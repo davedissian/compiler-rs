@@ -1,13 +1,9 @@
-#![allow(dead_code)]
-#![allow(deprecated)]
-#![feature(box_syntax)]
-#![feature(core)]
-#![feature(collections)]
-#![feature(plugin)]
-#![feature(old_io)]
+#![allow(dead_code, deprecated)]
+#![feature(box_syntax, core, collections, plugin, str_char, old_io)]
 #![plugin(peg_syntax_ext)]
 
 use std::old_io;
+use std::old_io::Reader;
 
 mod ast;
 
