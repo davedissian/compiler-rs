@@ -5,4 +5,4 @@ version = "0.0.1"
 authors = ["David Avedissian <avedissian.david@gmail.com>"]
 
 [dependencies]
-peg = "0.2.1"
+peg = "0.2.3"

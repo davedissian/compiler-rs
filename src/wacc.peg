@@ -1,0 +1,5 @@
+use ast;
+
+#[pub]
+program -> ast::Program
+    = .* { ast::Program(vec![]) }

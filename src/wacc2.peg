@@ -1,0 +1,83 @@
+use ast;
+
+#[pub]
+program -> ast::Program
+    = mlsep* fs:(function ++ (mlsep*)) mlsep* { ast::Program(fs) }
+
+// Functions
+function -> ast::Function
+    = "func" sep+ n:identifier function_args mlsep* s:statement {
+            ast::Function {
+                name: n,
+                returns: ast::Type::Void,
+                statements: match s {
+                    ast::Statement::Block(v) => v,
+                    _ => vec![s]
+                }
+            }
+        }
+    / "func" sep+ n:identifier function_args sep* "->" sep* t:type mlsep* s:statement {
+            ast::Function {
+                name: n,
+                returns: t,
+                statements: match s {
+                    ast::Statement::Block(v) => v,
+                    _ => vec![s]
+                }
+            }
+        }
+
+function_args
+    = "(" sep* ((type sep* identifier) ** (sep* "," sep*)) sep* ")"
+
+// Statements
+statement -> ast::Statement
+    = "{" mlsep* sl:(statement ++ (sep* [;\n] sep*)) mlsep* "}" { ast::Statement::Block(sl) }
+    / t:type sep+ s:identifier sep* "=" sep* e:expression sep* { ast::Statement::Declare(t, s, e) }
+    / "return" sep* e:expression { ast::Statement::Return(e) }
+    / "println" sep* e:expression { ast::Statement::Print(e) }
+
+// Expressions
+expression -> ast::Expression
+    = e:add_expression { e }
+
+add_expression -> ast::Expression
+    = e1:basic_expression sep* "+" sep* e2:add_expression {
+            ast::Expression::Binary(ast::BinaryOp::Add, Box::new(e1), Box::new(e2))
+        }
+    / e:basic_expression { e }
+
+basic_expression -> ast::Expression
+    = "-"? [0-9]+ { ast::Expression::Int(match_str.parse().unwrap()) }
+    / '"' s:str_literal '"' { ast::Expression::Str(s) }
+    / "true" { ast::Expression::Bool(true) }
+    / "false" { ast::Expression::Bool(false) }
+    / s:identifier "(" sep* ((char_literal*) ** (sep* "," sep*)) ")" {
+            ast::Expression::FunctionCall(s)
+        }
+    / s:identifier { ast::Expression::Identifier(s) }
+
+str_literal -> String
+    = char_literal* { match_str.to_string() }
+
+char_literal -> char
+    = [a-zA-Z0-9 \n] { match_str.char_at(0) }
+
+identifier -> String
+    = [a-zA-Z_]+ { match_str.to_string() }
+
+// Types
+type -> ast::Type
+    //= t:type "[]" { ast::Type::Array(Box::new(t)) }
+    = "pair<" t1:type "," t2:type ">" { ast::Type::Pair(Box::new(t1), Box::new(t2)) }
+    / t:basic_type { t }
+
+basic_type -> ast::Type
+    = "var" { ast::Type::Unknown }
+    / "int" { ast::Type::Int }
+    / "char" { ast::Type::Char }
+    / "bool" { ast::Type::Bool }
+
+// Separators
+sep = [ \t]
+mlsep = [ \t\n\r]
