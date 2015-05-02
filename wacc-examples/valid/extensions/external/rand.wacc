@@ -1,0 +1,8 @@
+begin
+  int srand(int seed) is external
+  int rand() is external
+
+  int _ = call srand(12345) ;
+  int val = call rand() ;
+  println val
+end

@@ -1,0 +1,15 @@
+begin
+
+  struct vector is
+    int x ;
+    int y
+  end
+
+  struct vector is
+    int x ;
+    int y
+  end
+
+  skip
+
+end

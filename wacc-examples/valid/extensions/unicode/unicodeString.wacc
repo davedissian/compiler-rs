@@ -1,0 +1,6 @@
+begin
+
+  string u = "零一二三四五六七八九十百千";
+  println u
+
+end

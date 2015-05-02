@@ -1,0 +1,13 @@
+begin
+
+  struct vector is
+    int x ;
+    int y
+  end
+
+  struct vector v = newstruct(vector, 1, 2) ;
+
+  int a = v.x ;
+  int b = v.y
+
+end
