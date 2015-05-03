@@ -55,6 +55,9 @@ basic_expression -> ast::Expression
     / s:identifier "(" sep* ((char_literal*) ** (sep* "," sep*)) ")" {
             ast::Expression::FunctionCall(s)
         }
+    / "[" sep* a:(expression ** (sep* "," sep*)) sep* "]" {
+            ast::Expression::ArrayLiteral(a)
+        }
     / s:identifier { ast::Expression::Identifier(s) }
 
 str_literal -> String
@@ -68,8 +71,8 @@ identifier -> String
 
 // Types
 type -> ast::Type
-    //= t:type "[]" { ast::Type::Array(Box::new(t)) }
-    = "pair<" t1:type "," t2:type ">" { ast::Type::Pair(Box::new(t1), Box::new(t2)) }
+    = "[]" t:type { ast::Type::Array(Box::new(t)) }
+    / "pair<" t1:type "," t2:type ">" { ast::Type::Pair(Box::new(t1), Box::new(t2)) }
     / t:basic_type { t }
 
 basic_type -> ast::Type

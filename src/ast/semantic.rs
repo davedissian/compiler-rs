@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use ast::*;
 
+// TODO: replace Err(msg) with emit_error so semantic checking can continue
+
 pub fn check_program(p: &mut Program) -> Result<(), String> {
     let Program(ref mut fs) = *p;
     let mut ctx = Context::new();
@@ -69,7 +71,7 @@ impl Context {
                     self.variables[self.depth - 1].insert(ident.clone(), t.clone());
                     Ok(())
                 } else {
-                    Err(format!("value being used to initialise '{:?}' does not match its declared type (expected: {:?}, actual: {:?})", ident, t, derived))
+                    Err(format!("value being used to initialise '{}' does not match its declared type (expected: {:?}, actual: {:?})", ident, t, derived))
                 }
             },
 
@@ -115,6 +117,17 @@ impl Context {
                 // Lookup function
                 // Get return type
                 Err(format!("cannot derive type of function call - unimplemented"))
+            }
+
+            Expression::ArrayLiteral(ref v) => {
+                let first_type = try!(self.derive_type(&v[0]));
+                for e in v.iter() {
+                    let et = try!(self.derive_type(e));
+                    if first_type != et {
+                        return Err(format!("array literal has mixed types"));
+                    }
+                }
+                Ok(Type::Array(Box::new(first_type)))
             }
 
             Expression::Unary(ref op, ref expr) => {

@@ -27,6 +27,7 @@ pub enum Expression {
     Str(String),
     Identifier(String),
     FunctionCall(String),
+    ArrayLiteral(Vec<Expression>),
     Unary(UnaryOp, Box<Expression>),
     Binary(BinaryOp, Box<Expression>, Box<Expression>)
 }
@@ -62,15 +63,16 @@ pub enum Type {
 impl PartialEq for Type {
     fn eq(&self, other: &Type) -> bool {
         match *self {
-            Type::Unknown => match *other { Type::Unknown => true, _ => false },
-            Type::Error => false,
-            Type::Any => true,
-            Type::Void => match *other { Type::Void => true, _ => false },
-            Type::Int => match *other { Type::Int => true, _ => false },
-            Type::Char => match *other { Type::Char => true, _ => false },
-            Type::Bool => match *other { Type::Bool => true, _ => false },
-            Type::Str => match *other { Type::Str => true, _ => false },
-            _ => false
+            Type::Unknown      => false,
+            Type::Error        => false,
+            Type::Any          => true,
+            Type::Void         => match *other { Type::Void => true, _ => false },
+            Type::Int          => match *other { Type::Int => true, _ => false },
+            Type::Char         => match *other { Type::Char => true, _ => false },
+            Type::Bool         => match *other { Type::Bool => true, _ => false },
+            Type::Str          => match *other { Type::Str => true, _ => false },
+            Type::Array(ref i) => match *other { Type::Array(ref i2) => i == i2, _ => false },
+            _                  => false
         }
     }
 }
