@@ -1,25 +1,13 @@
 compile-rs
 =========
-
-A compiler for a simple stringly typed programming language, heavily inspired by WACC. This compiler (will) have two front-ends, the new enhanced syntax and the syntax which matches the original WACC specification.
+A compiler (front end for now) for a simple strongly typed programming language, allowing safe code.
+The syntax is inspired by curly brace languages like Rust, and C++.
 
 Build using `cargo build`
 
 The Language
 ---------
-The language syntax is a simple imperative langauge with functional constructs such as higher-order functions and lambdas. It is inspired by the WACC programming language developed at Imperial College London for the second year Computing compilers project.
-
-Changes from WACC include:
-- Blocks use C style braces instead
-- Types of variables in declarations can be derived from the right hand side
-- Functions specify the return type after the arguments
-- Functions can omit a return type
-- Calling functions no longer requires the "call" keyword
-- Functions can be called without storing the result
-- Semi-colons are optional
-- Lambdas (which cannot capture variables) can be declared inline
-- Pair types can be fully nested
-- Comments now use // rather than #
+TODO
 
 Examples
 ---------
@@ -27,7 +15,7 @@ Examples
 Hello World
 ```
 func main() {
-    println "Hello World"
+    println("Hello World")
 }
 ```
 
@@ -35,7 +23,7 @@ Declare a variable
 ```
 func main() {
     var x = 4
-    println x
+    println(x)
 }
 ```
 
@@ -46,27 +34,7 @@ func add(int x, int y) -> int {
 }
 
 func main() {
-    println add(2, 3)
-}
-```
-
-Pairs
-```
-func squish_pair(pair<int, int> p) {
-    return (fst p) + (snd p)
-}
-
-func main() {
-    pair<int, int> p = newpair(2, 3)
-
-    // Print pair
-    print fst p
-    print " + "
-    print snd p
-    print " = "
-    println squish_pair(p)
-
-    free p
+    println(add(2, 3))
 }
 ```
 
@@ -76,16 +44,13 @@ func main() {
     int[] array = [1, 2, 3, 4]
     var i = 0
     while i < len array {
-        println array[i]
+        println(array[i])
         i = i + 1
     }
 }
 ```
 
-Extension Ideas
----------
-
-Structs
+Structures (UDTs)
 ```
 struct Data {
     int[] list
@@ -96,6 +61,60 @@ func main() {
     println d.list
 }
 ```
+
+Modules
+```
+use random
+
+func main() {
+    random.seed()
+    println random.gen()
+}
+```
+
+Type alias
+```
+alias myint int
+
+func doSomething(myint i) {
+    return i * 2
+}
+
+func main() {
+    var i = 1 as myint
+    println(doSomething(i))
+}
+```
+
+Type cast
+```
+func bloat(int32 v) -> int64 {
+    return v as int64
+}
+
+func main() {
+    int32 v = 5
+    println(bloat(v))
+}
+```
+
+External Calls
+```
+alias libc_charptr int32
+alias libc_int int
+
+extern libc_printf(libc_charptr fmt, libc_int i) = printf
+
+// Type safe wrapper
+func printf(string str, int i) {
+    enable reinterpret_cast {
+        libc_printf(str as libc_charptr, i as libc_int)
+    }
+}
+```
+
+Cool extras
+---------
 
 Generics
 ```
@@ -114,50 +133,18 @@ func main() {
 }
 ```
 
-Modules
-```
-import random
-
-func main() {
-    random.seed()
-    println random.gen()
-}
-```
-
-Built-ins
-```
-struct Heap<T> {
-    T data
-}
-
-func __assign__(Heap<int> h, int d) {
-    h.data = d
-}
-
-func __show__(Heap<int> h) {
-    print h.data
-}
-
-func main() {
-    var x = Heap<int>(3)
-    println x
-    x = 4
-    println x
-}
-```
-
-Lambdas
+Lambda
 ```
 func main() {
     var f = func(int x, int y) -> int {
         return x + y
     }
 
-    println f(2, 3)
+    println(f(2, 3))
 }
 ```
 
-Higher Order Functions
+Lambda #2
 ```
 func map(func(int, int) -> int f, int[] list) -> int[] {
     for i = 0; i < len list; i++ {
@@ -179,5 +166,20 @@ func main() {
     var add = func(int x, int y) { return x + y }
     var sq = func(int x) { return x * x }
     println reduce(add, map(sq, list))
+}
+```
+
+Closure
+```
+func main() {
+    var acc = 0
+
+    // type layout: func[<capture>](<type signature>)
+    // 'capture' means how variables outside the closure scope are captured. Either 'ref' or 'copy'.
+    var increment = func[ref](int x) {
+        acc += x
+    }
+    increment(3)
+    println(acc)
 }
 ```
