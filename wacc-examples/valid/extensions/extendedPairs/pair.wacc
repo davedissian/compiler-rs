@@ -1,7 +1,0 @@
-begin
-  pair(int, char) p = newpair(2, 'a');
-  pair(int, pair(int, char)) p2 = newpair(2, p);
-  pair(int, char) a = snd p2;
-  char c = snd a;
-  println c
-end

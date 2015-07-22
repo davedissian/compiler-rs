@@ -1,7 +1,0 @@
-begin
-  void printint(int x) is
-    println x
-  end
-
-  call printint(2)
-end

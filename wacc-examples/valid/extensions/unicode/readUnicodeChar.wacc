@@ -1,9 +1,0 @@
-begin
-
-  char u = ' ' ;
-
-  read u;
-
-  println u 
-
-end

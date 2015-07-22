@@ -1,7 +1,0 @@
-begin
-  int submod1_get() is
-    return 4
-  end
-
-  skip
-end

@@ -1,6 +1,0 @@
-begin
-
-  char c = '零';
-  println c
-
-end

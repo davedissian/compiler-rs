@@ -1,5 +1,0 @@
-begin
-  float x = 0.5;
-  x = x + 1.0;
-  println x
-end
