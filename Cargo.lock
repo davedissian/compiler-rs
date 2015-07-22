@@ -2,13 +2,13 @@
 name = "compile"
 version = "0.0.1"
 dependencies = [
- "getopts 0.2.10 (registry+https://github.com/rust-lang/crates.io-index)",
- "peg 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "getopts 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
+ "peg 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "getopts"
-version = "0.2.10"
+version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "log 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -16,7 +16,7 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.1.6"
+version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -24,11 +24,11 @@ name = "log"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "libc 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "peg"
-version = "0.2.3"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 

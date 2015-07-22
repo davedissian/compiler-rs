@@ -1,9 +1,8 @@
 [package]
-
 name = "compile"
 version = "0.0.1"
 authors = ["David Avedissian <avedissian.david@gmail.com>"]
 
 [dependencies]
-peg = "0.2.3"
-getopts = "0.2.4"
+peg = "*"
+getopts = "*"
