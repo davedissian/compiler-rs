@@ -64,7 +64,7 @@ str_literal -> String
     = char_literal* { match_str.to_string() }
 
 char_literal -> char
-    = [a-zA-Z0-9 \n] { match_str.char_at(0) }
+    = [a-zA-Z0-9 \n] { match_str.chars().next().unwrap() }
 
 identifier -> String
     = [a-zA-Z_]+ { match_str.to_string() }
