@@ -1,8 +1,5 @@
 #![allow(dead_code, deprecated)]
 
-// Needed for std::env::set_exit_status
-#![feature(exit_status)]
-
 // Dependencies for peg
 #![feature(plugin)]
 #![plugin(peg_syntax_ext)]
@@ -125,8 +122,8 @@ fn main() {
         Ok(o) => o,
         Err(t) => {
             match t {
-                CompileError::Syntax   => std::env::set_exit_status(100),
-                CompileError::Semantic => std::env::set_exit_status(200)
+                CompileError::Syntax   => std::process::exit(100),
+                CompileError::Semantic => std::process::exit(200)
             };
             return
         }
